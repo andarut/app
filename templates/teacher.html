@@ -16,10 +16,22 @@
     <div class="generate-sequence">
         <h2>Сгенерировать последовательность</h2>
         <form action="{{ url_for('generate_sequence') }}" method="post" class="sequence-form">
-            <input type="text" name="name" placeholder="Название последовательности" required class="form-input">
+            <input type="text" name="name" placeholder="Название" required class="form-input">
             <div class="form-group">
-                <label for="length">Длина последовательности:</label>
-                <input type="number" name="length" id="length" min="2" max="100" value="10" required class="form-input">
+                <label for="min_count">Минимальное количество подпоследовательностей:</label>
+                <input type="number" name="min_count" id="min_count" min="2" value="2" required class="form-input" >
+            </div>
+            <div class="form-group">
+                <label for="max_count">Максимальное количество подпоследовательностей:</label>
+                <input type="number" name="max_count" id="max_count" max="100" value="10" required class="form-input" >
+            </div>
+            <div class="form-group">
+                <label for="min_length">Минимальное количество чисел:</label>
+                <input type="number" name="min_length" id="min_length" min="2" value="2" required class="form-input" >
+            </div>
+            <div class="form-group">
+                <label for="max_length">Максимальное количество чисел:</label>
+                <input type="number" name="max_length" id="max_length" max="100" value="10" required class="form-input" >
             </div>
             <div class="form-group">
                 <label for="min_number">Минимальное число:</label>

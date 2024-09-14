@@ -9,9 +9,9 @@
         <div id="number-display" class="number-display"></div>
         
         <div class="answer-section">
-            <input type="text" id="answer-input" placeholder="Твой ответ" class="fun-input">
-            <button id="submit-answer" class="fun-button">Проверить</button>
-            <button id="show-answer" class="fun-button secondary">Подсказка</button>
+            <input type="text" id="answer-input" placeholder="Твой ответ" class="fun-input" disabled>
+            <button id="submit-answer" class="fun-button" disabled>Проверить</button>
+            <button id="show-answer" class="fun-button secondary" disabled>Подсказка</button>
         </div>
         
         <div id="result-message" class="result-message"></div>
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('submit-answer').addEventListener('click', submitAnswer);
     document.getElementById('show-answer').addEventListener('click', showAnswer);
     document.getElementById('exit-button').addEventListener('click', exitSequence);
-    showNextNumber();
+    gameloop();
 });
 
 let currentAudio = null;
@@ -140,41 +140,74 @@ function playNumber(number) {
     currentAudio.play();
 }
 
+let numbers;
 let answer;
 
-let index = 0;
-function showNextNumber() {
+let seqIndex = 0;
+let seqCount = 0
+
+let numIndex = 0;
+
+function gameloop() {
+    updateSequence().then((data) => {
+        document.getElementById('sequence-name').textContent = data.name;
+        seqCount = data.numbers.length
+        if (seqIndex < data.numbers.length) {
+            numbers = data.numbers[seqIndex];
+            answer = JSON.parse(data.answers)[seqIndex];
+            showNextNumber();
+        } else {
+            document.getElementById('number-display').textContent = "Игра окончена!";
+        }
+    });
+}
+
+function updateSequence() {
+    numIndex = 0
     const sequenceId = {{ sequence.id|tojson }};
+    return fetch(`/api/sequence/${sequenceId}`)
+        .then(response => response.json());
+}
+
+function showNextNumber() {
     const speed = {{ sequence.speed }};
     const sound = {{ sound|tojson }}
     
-    fetch(`/api/sequence/${sequenceId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('sequence-name').textContent = data.name;
-            answer = data.answer;
-            if (index < data.numbers.length) {
-                document.getElementById('number-display').textContent = data.numbers[index];
-                if (sound) {
-                    playNumber(data.numbers[index]);
-                }
-                index++;
-                setTimeout(() => {
-                    showNextNumber()
-                }, speed * 1000);
-            } else {
-                document.getElementById('number-display').textContent = "Игра окончена!";
-            }
-        });
+    if (numIndex < numbers.length) {
+        document.getElementById('number-display').textContent = numbers[numIndex];
+        if (sound) {
+            playNumber(numbers[numIndex]);
+        }
+        numIndex++;
+        setTimeout(() => {
+            showNextNumber()
+        }, speed * 1000);
+    } else {
+        document.getElementById('number-display').textContent = "Какой у тебя ответ?";
+        document.getElementById('answer-input').disabled = false;
+        document.getElementById('submit-answer').disabled = false;
+        document.getElementById('show-answer').disabled = false;
+    }
 }
 
 function submitAnswer() {
     const userAnswer = document.getElementById('answer-input').value;
     const resultMessage = document.getElementById('result-message');
-    
+    resultMessage.style.display = 'block';
+
     if (userAnswer == answer) {
         resultMessage.textContent = "Правильно! Ты молодец!";
         resultMessage.style.backgroundColor = "#66de93";
+        seqIndex++;
+        if (seqIndex < seqCount) {
+            document.getElementById('number-display').textContent = "Сейчас начнется новая серия!";
+            setTimeout(() => {
+                resultMessage.style.display = 'none';
+                gameloop();
+            }, 2000);
+        } else {
+            gameloop();
+        }
     } else {
         resultMessage.textContent = "Ой, попробуй еще раз!";
         resultMessage.style.backgroundColor = "#ff9999";

@@ -48,7 +48,7 @@ def teacher():
 def sequence():
     sequence_id = request.args.get('id', type=int)
     sound = request.args.get('sound', type=lambda v: v.lower() == 'true')
-    speed = request.args.get('speed', type=int)
+    speed = request.args.get('speed', type=float)
     sequence = Sequence.query.get_or_404(sequence_id)
     return render_template('sequence.html', 
                            sequence={
@@ -62,8 +62,8 @@ def get_sequence(id):
     sequence = Sequence.query.get_or_404(id)
     return jsonify({
         'name': sequence.name,
-        'numbers': parse_sequence(sequence.content),
-        'answer': sequence.answer
+        'numbers': [parse_sequence(content) for content in sequence.content.split(',')],
+        'answers': sequence.answers
     })
 
 
@@ -74,10 +74,9 @@ def student():
 
 @app.route('/create_sequence', methods=['POST'])
 def create_sequence():
-    name = request.form['name']
     content = request.form['content']
-    answer = calculate_answer(request.form['content'])
-    new_sequence = Sequence(name=name, content=content, answer=answer)
+    new_sequence = Sequence(name=request.form['name'], content=content)
+    new_sequence.set_answers([calculate_answer(content) for content in content.split(',')])
     db.session.add(new_sequence)
     db.session.commit()
     flash('Последовательность создана успешно!', 'success')
@@ -86,9 +85,10 @@ def create_sequence():
 @app.route('/edit_sequence/<int:id>', methods=['POST'])
 def edit_sequence(id):
     sequence = Sequence.query.get_or_404(id)
+    content = request.form['content']
     sequence.name = request.form['name']
-    sequence.content = request.form['content']
-    sequence.answer = calculate_answer(request.form['content'])
+    sequence.content = content
+    sequence.set_answers([calculate_answer(content) for content in content.split(',')])
     db.session.commit()
     flash('Последовательность обновлена успешно!', 'success')
     return redirect(url_for('teacher'))
@@ -103,30 +103,30 @@ def delete_sequence(id):
 @app.route('/generate_sequence', methods=['POST'])
 def generate_sequence():
     name = request.form['name']
-    length = int(request.form['length'])
+
+    min_count = int(request.form['min_count'])
+    max_count = int(request.form['max_count'])
+    
+    min_length = int(request.form['min_length'])
+    max_length = int(request.form['max_length'])
+
     min_number = int(request.form['min_number'])
     max_number = int(request.form['max_number'])
 
-    sequence = []
-    result = random.randint(min_number, max_number)  # Начинаем с случайного числа от 1 до 10
-    sequence.append(str(result))
-
-    for _ in range(length - 1):  # Уменьшаем на 1, так как первое число уже добавлено
-        op = random.choice(['+', '-'])
-        num = random.randint(min_number, max_number)  # Используем положительные числа для простоты
-
-        if op == '+':
-            result += num
-        elif op == '-':
-            result -= num
-        
-        sequence.append(f" {op} {num}")  # Добавляем пробелы вокруг операции и числа
-
-    content = "".join(sequence)  # Объединяем элементы без дополнительных запятых
-    answer = result
+    content = ""
+    count = random.randint(min_count, max_count)
+    for i in range(count):
+        sequence_content = []
+        sequence_content.append(str(random.randint(min_number, max_number)))
+        for _ in range(random.randint(min_length, max_length) - 1):
+            op = random.choice(['+', '-'])
+            num = random.randint(min_number, max_number)
+            sequence_content.append(f" {op} {num}")
+        content += "".join(sequence_content) + ', ' if i != count - 1 else "".join(sequence_content)
     
-    new_sequence = Sequence(name=name, content=content, answer=answer)
-    db.session.add(new_sequence)
+    sequence = Sequence(name=name, content=content)
+    sequence.set_answers([calculate_answer(content) for content in content.split(',')])
+    db.session.add(sequence)
     db.session.commit()
 
     flash('Последовательность успешно сгенерирована!', 'success')
