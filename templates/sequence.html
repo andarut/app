@@ -198,7 +198,8 @@ function submitAnswer() {
     if (userAnswer == answer) {
         resultMessage.textContent = "Правильно! Ты молодец!";
         resultMessage.style.backgroundColor = "#66de93";
-
+        
+        document.getElementById('answer-input').value = ""
         document.getElementById('answer-input').disabled = true;
         document.getElementById('submit-answer').disabled = true;
         document.getElementById('show-answer').disabled = true;
