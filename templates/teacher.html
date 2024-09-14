@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="teacher-container">
+    <h1>Панель управления учителя</h1>
+    
+    <div class="create-sequence">
+        <h2>Создать последовательность</h2>
+        <form action="{{ url_for('create_sequence') }}" method="post" class="sequence-form">
+            <input type="text" name="name" placeholder="Название последовательности" required class="form-input">
+            <textarea name="content" placeholder="Пример: 3 + 2 - 1" required class="form-input"></textarea>
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+    </div>
+
+    <div class="generate-sequence">
+        <h2>Сгенерировать последовательность</h2>
+        <form action="{{ url_for('generate_sequence') }}" method="post" class="sequence-form">
+            <input type="text" name="name" placeholder="Название последовательности" required class="form-input">
+            <div class="form-group">
+                <label for="length">Длина последовательности:</label>
+                <input type="number" name="length" id="length" min="2" max="100" value="10" required class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="min_number">Минимальное число:</label>
+                <input type="number" name="min_number" id="min_number" value="1" required class="form-input" >
+            </div>
+            <div class="form-group">
+                <label for="max_number">Максимальное число:</label>
+                <input type="number" name="max_number" id="max_number" value="9" required class="form-input" >
+            </div>
+            <button type="submit" class="btn btn-primary">Cгенерировать</button>
+        </form>
+    </div>
+
+    <div class="existing-sequences">
+        <h2>Существующие последовательности</h2>
+        {% for sequence in sequences %}
+        <div class="sequence-item" data-id="{{ sequence.id }}">
+            <h3>{{ sequence.name }}</h3>
+            <form action="{{ url_for('edit_sequence', id=sequence.id) }}" method="post" class="sequence-form">
+                <input type="text" name="name" value="{{ sequence.name }}" required class="form-input">
+                <textarea name="content" required class="form-input">{{ sequence.content }}</textarea>
+                <div class="button-group">
+                    <button type="submit" class="btn btn-secondary">Обновить</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteSequence({{ sequence.id }})">Удалить</button>
+                </div>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        line-height: 1.6;
+    }
+    
+    .teacher-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+    }
+    
+    h2 {
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-top: 30px;
+        font-size: 1.8em;
+    }
+    
+    .create-sequence, .generate-sequence, .existing-sequences {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .sequence-form {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-input {
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    textarea.form-input {
+        min-height: 100px;
+        resize: vertical;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, transform 0.1s;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+    
+    .btn-secondary {
+        background-color: #2ecc71;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #27ae60;
+    }
+    
+    .sequence-item {
+        background-color: #ecf0f1;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .sequence-item h3 {
+        color: #2980b9;
+        margin-top: 0;
+        font-size: 1.5em;
+    }
+    
+    .delete-form {
+        margin-top: 10px;
+    }
+    
+    .btn-danger {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .button-group .btn {
+        flex: 1;
+    }
+    </style>
+
+<script>
+    function deleteSequence(id) {
+        if (confirm('Вы уверены, что хотите удалить эту последовательность?')) {
+            fetch(`/delete_sequence/${id}`, { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Находим и удаляем элемент из DOM
+                    const sequenceElement = document.querySelector(`.sequence-item[data-id="${id}"]`);
+                    if (sequenceElement) {
+                        sequenceElement.remove();
+                    }
+                    alert(data.message);
+                } else {
+                    alert('Ошибка при удалении последовательности');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при удалении последовательности');
+            });
+        }
+    }
+    </script>
+{% endblock %}

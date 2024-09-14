@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="student-container">
+    <h1>Время играть и учиться!</h1>
+
+    <div class="game-box">
+        <h2 id="sequence-name" class="sequence-title"></h2>
+        <div id="number-display" class="number-display"></div>
+        
+        <div class="answer-section">
+            <input type="text" id="answer-input" placeholder="Твой ответ" class="fun-input">
+            <button id="submit-answer" class="fun-button">Проверить</button>
+            <button id="show-answer" class="fun-button secondary">Подсказка</button>
+        </div>
+        
+        <div id="result-message" class="result-message"></div>
+        
+        <button id="exit-button" class="fun-button exit">Закончить игру</button>
+    </div>
+</div>
+
+<style>
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #f0f8ff;
+    color: #333;
+}
+
+.student-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #ff6b6b;
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+.game-box {
+    background-color: #4ecdc4;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.sequence-title {
+    color: #fff;
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+.number-display {
+    background-color: #fff;
+    color: #ff6b6b;
+    font-size: 3em;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.answer-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.fun-input {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 10px;
+}
+
+.fun-button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.fun-button:hover {
+    transform: scale(1.05);
+}
+
+.fun-button:active {
+    transform: scale(0.95);
+}
+
+#submit-answer {
+    background-color: #ff6b6b;
+}
+
+#show-answer {
+    background-color: #feca57;
+}
+
+#exit-button {
+    background-color: #ff9ff3;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.result-message {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('submit-answer').addEventListener('click', submitAnswer);
+    document.getElementById('show-answer').addEventListener('click', showAnswer);
+    document.getElementById('exit-button').addEventListener('click', exitSequence);
+    showNextNumber();
+});
+
+let currentAudio = null;
+function playNumber(number) {
+    if (currentAudio) {
+        currentAudio.pause();
+    }
+    currentAudio = new Audio(`/static/audio/${number}.mp3`);
+    currentAudio.play();
+}
+
+let answer;
+
+let index = 0;
+function showNextNumber() {
+    const sequenceId = {{ sequence.id|tojson }};
+    const speed = {{ sequence.speed }};
+    const sound = {{ sound|tojson }}
+    
+    fetch(`/api/sequence/${sequenceId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('sequence-name').textContent = data.name;
+            answer = data.answer;
+            if (index < data.numbers.length) {
+                document.getElementById('number-display').textContent = data.numbers[index];
+                if (sound) {
+                    playNumber(data.numbers[index]);
+                }
+                index++;
+                setTimeout(() => {
+                    showNextNumber()
+                }, speed * 1000);
+            } else {
+                document.getElementById('number-display').textContent = "Игра окончена!";
+            }
+        });
+}
+
+function submitAnswer() {
+    const userAnswer = document.getElementById('answer-input').value;
+    const resultMessage = document.getElementById('result-message');
+    
+    if (userAnswer == answer) {
+        resultMessage.textContent = "Правильно! Ты молодец!";
+        resultMessage.style.backgroundColor = "#66de93";
+    } else {
+        resultMessage.textContent = "Ой, попробуй еще раз!";
+        resultMessage.style.backgroundColor = "#ff9999";
+    }
+}
+
+function showAnswer() {
+    document.getElementById('result-message').textContent = `Правильный ответ: ${answer}`;
+    document.getElementById('result-message').style.backgroundColor = "#feca57";
+}
+
+function exitSequence() {
+    window.location.href = "{{ url_for('student') }}";
+}
+</script>
+{% endblock %}

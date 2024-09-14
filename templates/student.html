@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="student-container">
+    <h1>Давай учиться!</h1>
+
+    <div class="game-box">
+        <div class="sequence-selection">
+            <label for="sequence-select">Выбери игру:</label>
+            <select id="sequence-select" class="fun-select">
+                {% for sequence in sequences %}
+                <option value="{{ sequence.id }}">{{ sequence.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="speed-control">
+            <label for="speed-slider">Скорость:</label>
+            <input type="range" id="speed-slider" min="1" max="10" step="1" value="2" class="fun-slider">
+            <span id="speed-value" class="speed-bubble">2 c</span>
+        </div>
+        
+        <div class="sound-control">
+            <label for="sound-toggle">Звук:</label>
+            <label class="switch">
+                <input type="checkbox" id="sound-toggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        
+        <button id="start-button" class="fun-button">Поехали!</button>
+    </div>
+</div>
+
+<style>
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #f0f8ff;
+    color: #333;
+}
+
+.student-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #ff6b6b;
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+.game-box {
+    background-color: #4ecdc4;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.sequence-selection, .speed-control, .sound-control {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 1.2em;
+    color: #fff;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.fun-select, .fun-slider {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+    background-color: #fff;
+}
+
+.speed-bubble {
+    display: inline-block;
+    background-color: #ff6b6b;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #ff6b6b;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.fun-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.fun-button:hover {
+    background-color: #ff8e8e;
+    transform: scale(1.05);
+}
+
+.fun-button:active {
+    transform: scale(0.95);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('start-button').addEventListener('click', startSequence);
+    document.getElementById('speed-slider').addEventListener('input', updateSpeed);
+});
+
+function startSequence() {
+    const sequenceId = document.getElementById('sequence-select').value;
+    const sound = document.getElementById('sound-toggle').checked;
+    const speed = document.getElementById('speed-slider').value;
+    console.log(sound)
+    const url = `/sequence?id=${sequenceId}&sound=${sound}&speed=${speed}`;
+    window.location.href = url;
+}
+
+function updateSpeed() {
+    speed = document.getElementById('speed-slider').value;
+    document.getElementById('speed-value').textContent = `${speed} c`;
+}
+</script>
+{% endblock %}
