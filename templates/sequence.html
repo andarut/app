@@ -198,6 +198,11 @@ function submitAnswer() {
     if (userAnswer == answer) {
         resultMessage.textContent = "Правильно! Ты молодец!";
         resultMessage.style.backgroundColor = "#66de93";
+
+        document.getElementById('answer-input').disabled = true;
+        document.getElementById('submit-answer').disabled = true;
+        document.getElementById('show-answer').disabled = true;
+
         seqIndex++;
         if (seqIndex < seqCount) {
             document.getElementById('number-display').textContent = "Сейчас начнется новая серия!";
@@ -215,6 +220,7 @@ function submitAnswer() {
 }
 
 function showAnswer() {
+    document.getElementById('result-message').style.display = 'block';
     document.getElementById('result-message').textContent = `Правильный ответ: ${answer}`;
     document.getElementById('result-message').style.backgroundColor = "#feca57";
 }
