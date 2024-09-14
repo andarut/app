@@ -1,7 +1,6 @@
 #!.venv/bin/python3
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from models import db, Sequence
 
 from gtts import gTTS
@@ -21,9 +20,10 @@ db.init_app(app)
 def create_number_audio_files():
     for num in list(NUMBERS_RANGE):
         tts = gTTS(text=str(num), lang='ru')
-        path = f"static/audio/{num}.mp3"
-        if not os.path.exists(path):
-            tts.save(path)
+        folder = f"{app.static_folder}/audio"
+        path = f"{folder}/{num}.mp3"
+        if not os.path.exists(folder): os.mkdir(folder)
+        if not os.path.exists(path): tts.save(path)
 
 create_number_audio_files()
 
