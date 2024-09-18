@@ -7,8 +7,8 @@ from gtts import gTTS
 import os
 import random
 
-# -9, ..., 9
-NUMBERS_RANGE = range(-9,10)
+MAX_NUMBER = 999
+NUMBERS_RANGE = range(-MAX_NUMBER,MAX_NUMBER+1)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -22,6 +22,8 @@ def create_number_audio_files():
         tts = gTTS(text=str(num), lang='ru')
         folder = f"{app.static_folder}/audio"
         path = f"{folder}/{num}.mp3"
+        percent = round((list(NUMBERS_RANGE).index(num) / (MAX_NUMBER * 2)) * 100, 2)
+        print(f"AUDIO GEN {percent} %", end="\r")
         if not os.path.exists(folder): os.mkdir(folder)
         if not os.path.exists(path): tts.save(path)
 

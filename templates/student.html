@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="student-container">
-    <h1>Давай учиться!</h1>
+    <h1>Время играть и учиться!</h1>
 
     <div class="game-box">
         <div class="sequence-selection">
@@ -40,68 +40,88 @@ body {
 }
 
 .fun-slider {
-    width: 100%;
-    margin: 0;
-    padding: 10px 0; 
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Remove default styling */
+    width: 100%; /* Full width */
+    margin: 30px 0; /* Increased margin for spacing */
+    background: transparent; /* Remove background to avoid white rectangle */
+}
+
+/* For Chrome, Safari, Opera, and Edge */
+.fun-slider::-webkit-slider-runnable-track {
+    background: #21B5EA; /* Track color */
+    height: 12px; /* Increased height of the track */
+    border-radius: 5px; /* Rounded corners */
+}
+
+.fun-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none;
+    width: 30px; /* Increased width of the thumb */
+    height: 30px; /* Increased height of the thumb */
+    background: #21B5EA; /* Thumb color */
+    border-radius: 50%; /* Round thumb */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-top: -9px; /* Center the thumb vertically on the track (half of track height) */
 }
 
 .student-container {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
+    max-width: 800px; /* Increased max-width */
+    margin: 30px auto; /* Increased margin */
+    padding: 30px; /* Increased padding */
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
 h1 {
-    color: #ff6b6b;
+    color: #21b5ea;
     text-align: center;
-    font-size: 2.5em;
-    margin-bottom: 30px;
+    font-size: 3em; /* Increased font size */
+    margin-bottom: 40px; /* Increased bottom margin */
 }
 
 .game-box {
-    background-color: #4ecdc4;
-    padding: 20px;
-    border-radius: 15px;
+    background-color: #006fb9;
+    padding: 30px; /* Increased padding */
+    border-radius: 20px;
 }
 
 .sequence-selection, .speed-control, .sound-control {
-    margin-bottom: 20px;
+    margin-bottom: 30px; /* Increased bottom margin */
 }
 
 label {
-    font-size: 1.2em;
+    font-size: 1.5em; /* Increased font size */
     color: #fff;
-    margin-bottom: 5px;
+    margin-bottom: 10px; /* Increased bottom margin */
     display: block;
 }
 
 .fun-select {
     width: 100%;
-    padding: 10px;
+    padding: 15px; /* Increased padding */
     border: none;
     border-radius: 10px;
-    font-size: 1em;
+    font-size: 1.2em; /* Increased font size */
     background-color: #fff;
 }
 
 .speed-bubble {
     display: inline-block;
-    background-color: #ff6b6b;
+    background-color: #21B5EA;
     color: #fff;
-    padding: 5px 10px;
+    padding: 8px 15px; /* Increased padding */
     border-radius: 20px;
-    font-size: 0.9em;
+    font-size: 1.1em; /* Increased font size */
     margin-top: 10px;
 }
 
 .switch {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 80px; /* Increased width of switch */
+    height: 40px; /* Increased height of switch */
 }
 
 .switch input {
@@ -122,69 +142,69 @@ label {
     border-radius: 34px;
 }
 
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+.slider::before {
+   position:absolute;
+   content:"";
+   height:34px; /* Increased height of slider knob */
+   width :34px; /* Increased width of slider knob */
+   left :4px ;
+   bottom :4px ;
+   background-color:white ;
+   transition:.4s ;
+   border-radius :50% ;
 }
 
-input:checked + .slider {
-    background-color: #ff6b6b;
+input :checked + .slider {
+   background-color:#21B5EA ;
 }
 
-input:checked + .slider:before {
-    transform: translateX(26px);
+input :checked + .slider::before {
+   transform :translateX(40px); 
 }
 
 .fun-button {
-    display: block;
-    width: 100%;
-    padding: 15px;
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.5em;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.1s;
-    text-transform: uppercase;
-    font-weight: bold;
+   display:block ;
+   width :100% ;
+   padding :20px ; /* Increased padding */
+   background-color:#21B5EA ;
+   color:white ;
+   border:none ;
+   border-radius :10px ;
+   font-size :2em ; /* Increased font size */
+   cursor:pointer ;
+   transition :background-color .3s , transform .1s ;
+   text-transform :uppercase ;
+   font-weight:bold ;
 }
 
 .fun-button:hover {
-    background-color: #ff8e8e;
-    transform: scale(1.05);
+   background-color:#21B5EA ;
+   transform :scale(1.05);
 }
 
-.fun-button:active {
-    transform: scale(0.95);
+.fun-button :active {
+   transform :scale(0.95);
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('start-button').addEventListener('click', startSequence);
-    document.getElementById('speed-slider').addEventListener('input', updateSpeed);
+     document.getElementById('start-button').addEventListener('click', startSequence);
+     document.getElementById('speed-slider').addEventListener('input', updateSpeed);
 });
 
 function startSequence() {
-    const sequenceId = document.getElementById('sequence-select').value;
-    const sound = document.getElementById('sound-toggle').checked;
-    const speed = document.getElementById('speed-slider').value;
-    console.log(sound)
-    const url = `/sequence?id=${sequenceId}&sound=${sound}&speed=${speed}`;
-    window.location.href = url;
+     const sequenceId = document.getElementById('sequence-select').value;
+     const sound = document.getElementById('sound-toggle').checked;
+     const speed = document.getElementById('speed-slider').value;
+
+     const url = `/sequence?id=${sequenceId}&sound=${sound}&speed=${speed}`;
+     window.location.href = url;
 }
 
 function updateSpeed() {
-    speed = document.getElementById('speed-slider').value;
-    document.getElementById('speed-value').textContent = `${speed} c`;
+     speed = document.getElementById('speed-slider').value;
+     document.getElementById('speed-value').textContent = `${speed} c`;
 }
 </script>
 {% endblock %}
