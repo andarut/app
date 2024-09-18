@@ -5,10 +5,13 @@ from models import db, Sequence
 
 from gtts import gTTS
 import os
+import time
 import random
 
 MAX_NUMBER = 999
-NUMBERS_RANGE = range(-MAX_NUMBER,MAX_NUMBER+1)
+# NUMBERS_RANGE = range(-MAX_NUMBER,MAX_NUMBER+1)
+932
+NUMBERS_RANGE = range(932,MAX_NUMBER+1)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -19,13 +22,15 @@ db.init_app(app)
 
 def create_number_audio_files():
     for num in list(NUMBERS_RANGE):
-        tts = gTTS(text=str(num), lang='ru')
         folder = f"{app.static_folder}/audio"
         path = f"{folder}/{num}.mp3"
-        percent = round((list(NUMBERS_RANGE).index(num) / (MAX_NUMBER * 2)) * 100, 2)
-        print(f"AUDIO GEN {percent} %", end="\r")
-        if not os.path.exists(folder): os.mkdir(folder)
-        if not os.path.exists(path): tts.save(path)
+        if not os.path.exists(path):
+            tts = gTTS(text=str(num), lang='ru')
+            time.sleep(2)  # to avoid gtts.tts.gTTSError: 429 (Too Many Requests) from TTS API. Probable cause: Unknown
+            percent = round((list(NUMBERS_RANGE).index(num) / (MAX_NUMBER * 2)) * 100, 2)
+            print(f"AUDIO GEN {percent} %", end="\r")
+            if not os.path.exists(folder): os.mkdir(folder)
+            tts.save(path)
 
 create_number_audio_files()
 
