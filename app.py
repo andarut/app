@@ -9,9 +9,7 @@ import time
 import random
 
 MAX_NUMBER = 999
-# NUMBERS_RANGE = range(-MAX_NUMBER,MAX_NUMBER+1)
-932
-NUMBERS_RANGE = range(932,MAX_NUMBER+1)
+NUMBERS_RANGE = range(-MAX_NUMBER,MAX_NUMBER+1)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -32,7 +30,7 @@ def create_number_audio_files():
             if not os.path.exists(folder): os.mkdir(folder)
             tts.save(path)
 
-create_number_audio_files()
+# create_number_audio_files()
 
 def calculate_answer(sequence_str):
     return sum(parse_sequence(sequence_str))

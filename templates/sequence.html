@@ -133,18 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let currentAudio = null;
 
-function playNumber(number, speed) {
-     if (currentAudio) {
-         currentAudio.pause();
-     }
-     currentAudio = new Audio(`/static/audio/${number}.mp3`);
-     currentAudio.addEventListener('loadedmetadata', function() {
-         const duration = currentAudio.duration;
-         currentAudio.playbackRate = currentAudio.duration / speed
-         currentAudio.play();
-     });
-}
-
 let numbers;
 let answer;
 
@@ -181,12 +169,17 @@ function showNextNumber() {
      if (numIndex < numbers.length) {
          document.getElementById('number-display').textContent = numbers[numIndex];
          if (sound) {
-             playNumber(numbers[numIndex], speed);
+            currentAudio = new Audio(`/static/audio/${numbers[numIndex]}.mp3`);
+            currentAudio.addEventListener('loadedmetadata', function() {
+                const duration = currentAudio.duration;
+                currentAudio.playbackRate = duration / speed;
+                currentAudio.play();
+                currentAudio.addEventListener('ended', () => {
+                    numIndex++;
+                    showNextNumber();
+                });
+            });
          }
-         numIndex++;
-         setTimeout(() => {
-             showNextNumber()
-         }, speed * 1000);
      } else {
          document.getElementById('number-display').textContent = "Какой ответ?";
          document.getElementById('answer-input').disabled = false;
