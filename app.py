@@ -11,16 +11,16 @@ import random
 MAX_NUMBER = 999
 NUMBERS_RANGE = range(-MAX_NUMBER,MAX_NUMBER+1)
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sequences.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application = Flask(__name__)
+application.config['SECRET_KEY'] = 'your_secret_key'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sequences.db'
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)
+db.init_app(application)
 
 def create_number_audio_files():
     for num in list(NUMBERS_RANGE):
-        folder = f"{app.static_folder}/audio"
+        folder = f"{application.static_folder}/audio"
         path = f"{folder}/{num}.mp3"
         if not os.path.exists(path):
             tts = gTTS(text=str(num), lang='ru')
@@ -40,16 +40,16 @@ def parse_sequence(sequence_str):
     sequence = [int(part) for part in parts]
     return sequence
 
-@app.before_first_request
+@application.before_first_request
 def create_tables():
     db.create_all()
 
-@app.route('/teacher')
+@application.route('/teacher')
 def teacher():
     sequences = Sequence.query.all()
     return render_template('teacher.html', sequences=sequences)
 
-@app.route('/sequence')
+@application.route('/sequence')
 def sequence():
     sequence_id = request.args.get('id', type=int)
     sound = request.args.get('sound', type=lambda v: v.lower() == 'true')
@@ -62,7 +62,7 @@ def sequence():
                            },
                            sound=sound)
 
-@app.route('/api/sequence/<int:id>')
+@application.route('/api/sequence/<int:id>')
 def get_sequence(id):
     sequence = Sequence.query.get_or_404(id)
     return jsonify({
@@ -72,12 +72,12 @@ def get_sequence(id):
     })
 
 
-@app.route('/student')
+@application.route('/student')
 def student():
     sequences = Sequence.query.all()
     return render_template('student.html', sequences=sequences)
 
-@app.route('/create_sequence', methods=['POST'])
+@application.route('/create_sequence', methods=['POST'])
 def create_sequence():
     content = request.form['content']
     new_sequence = Sequence(name=request.form['name'], content=content)
@@ -87,7 +87,7 @@ def create_sequence():
     flash('Последовательность создана успешно!', 'success')
     return redirect(url_for('teacher'))
 
-@app.route('/edit_sequence/<int:id>', methods=['POST'])
+@application.route('/edit_sequence/<int:id>', methods=['POST'])
 def edit_sequence(id):
     sequence = Sequence.query.get_or_404(id)
     content = request.form['content']
@@ -98,14 +98,14 @@ def edit_sequence(id):
     flash('Последовательность обновлена успешно!', 'success')
     return redirect(url_for('teacher'))
 
-@app.route('/delete_sequence/<int:id>', methods=['POST'])
+@application.route('/delete_sequence/<int:id>', methods=['POST'])
 def delete_sequence(id):
     sequence = Sequence.query.get_or_404(id)
     db.session.delete(sequence)
     db.session.commit()
     return jsonify({"success": True, "message": "Последовательность успешно удалена!"})
 
-@app.route('/generate_sequence', methods=['POST'])
+@application.route('/generate_sequence', methods=['POST'])
 def generate_sequence():
     name = request.form['name']
 
@@ -138,4 +138,4 @@ def generate_sequence():
     return redirect(url_for('teacher'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=True)
