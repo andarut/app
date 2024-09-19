@@ -151,6 +151,7 @@ function gameloop() {
              showNextNumber();
          } else {
              document.getElementById('number-display').textContent = "Игра окончена!";
+             document.getElementById('number-display').setAttribute("style", "font-size: 4em");
          }
      });
 }
@@ -168,20 +169,35 @@ function showNextNumber() {
     
      if (numIndex < numbers.length) {
          document.getElementById('number-display').textContent = numbers[numIndex];
+         document.getElementById('number-display').setAttribute("style", "font-size: 4em");
          if (sound) {
             currentAudio = new Audio(`/static/audio/${numbers[numIndex]}.mp3`);
             currentAudio.addEventListener('loadedmetadata', function() {
                 const duration = currentAudio.duration;
-                currentAudio.playbackRate = duration / speed;
+                if (duration > speed) {
+                    currentAudio.playbackRate = duration / speed;
+                }
                 currentAudio.play();
                 currentAudio.addEventListener('ended', () => {
                     numIndex++;
-                    showNextNumber();
+                    if (duration > speed) {
+                        showNextNumber();
+                    } else {
+                        setTimeout(() => {
+                            showNextNumber();
+                        }, (speed - duration) * 1000);
+                    }
                 });
             });
+         } else {
+            numIndex++;
+            setTimeout(() => {
+                showNextNumber();
+            }, speed * 1000);
          }
      } else {
          document.getElementById('number-display').textContent = "Какой ответ?";
+         document.getElementById('number-display').setAttribute("style", "font-size: 4em");
          document.getElementById('answer-input').disabled = false;
          document.getElementById('submit-answer').disabled = false;
          document.getElementById('show-answer').disabled = false;
@@ -205,6 +221,7 @@ function submitAnswer() {
          seqIndex++;
          if (seqIndex < seqCount) {
              document.getElementById('number-display').textContent = "Приготовься к следующему примеру!";
+             document.getElementById('number-display').setAttribute("style", "font-size: 2em");
              setTimeout(() => {
                  resultMessage.style.display = 'none';
                  gameloop();
