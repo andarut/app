@@ -2,3 +2,4 @@
 .venv
 sequences.db
 # static/audio/*
+__pycache__
